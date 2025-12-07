@@ -1,154 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Employee Work & Salary Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 700px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-        }
-        label {
-            font-weight: bold;
-        }
-        input {
-            padding: 8px;
-            margin: 5px 0 15px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background: #eee;
-        }
-        .salary-box {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            background: #e1ffe1;
-            border: 1px solid #7ad67a;
-            border-radius: 5px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Employee Salary Tracker</title>
+<style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; padding:20px; }
+    .container { max-width:1000px; margin:auto; background:white; padding:20px; border-radius:10px; }
+    h2 { text-align:center; }
+    .employee-box { border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:10px; background:#fafafa; }
+    label { font-weight:bold; }
+    input { width:100%; padding:8px; margin:5px 0 10px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:center; }
+    th { background:#eee; }
+    .total-box { background:#e1ffe1; padding:10px; margin-top:10px; text-align:center; font-weight:bold; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h2>Employee Weekly Salary Calculator</h2>
+<div class="container">
+<h2>Salary Calculator for 4 Employees</h2>
+
+<div id="employees"></div>
+</div>
+
+<script>
+const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const employeeCount = 4;
+
+function createEmployee(id) {
+    return `
+    <div class='employee-box' id='emp_${id}'>
+        <h3>Employee ${id}</h3>
 
         <label>Name:</label>
-        <input type="text" id="empName" placeholder="Enter employee name" value="Juan Dela Cruz">
+        <input type='text' id='name_${id}' placeholder='Enter name'>
 
         <label>Age:</label>
-        <input type="number" id="empAge" placeholder="Enter age" value="25">
+        <input type='number' id='age_${id}' placeholder='Enter age'>
 
         <label>Position:</label>
-        <input type="text" id="empPosition" placeholder="Enter job position" value="Cashier">
+        <input type='text' id='position_${id}' placeholder='Enter position'>
 
-        <label>Salary Per Day (₱):</label>
-        <input type="number" id="dailySalary" value="500" />
+        <label>Daily Salary (₱):</label>
+        <input type='number' id='salary_${id}' value='500'>
 
         <table>
-            <thead>
-                <tr>
-                    <th>Day</th>
-                    <th>Worked?</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Day</th><th>Worked?</th></tr></thead>
             <tbody>
-                <tr><td>Monday</td><td><input type="checkbox" class="day-check"></td></tr>
-                <tr><td>Tuesday</td><td><input type="checkbox" class="day-check"></td></tr>
-                <tr><td>Wednesday</td><td><input type="checkbox" class="day-check"></td></tr>
-                <tr><td>Thursday</td><td><input type="checkbox" class="day-check"></td></tr>
-                <tr><td>Friday</td><td><input type="checkbox" class="day-check"></td></tr>
-                <tr><td>Saturday</td><td><input type="checkbox" class="day-check"></td></tr>
-                <tr><td>Sunday</td><td><input type="checkbox" class="day-check"></td></tr>
+                ${days.map((d,i)=>`<tr><td>${d}</td><td><input type='checkbox' class='day_${id}' data-index='${i}'></td></tr>`).join('')}
             </tbody>
         </table>
 
-        <div class="salary-box" id="totalSalaryBox">Total Salary: ₱0</div>
-    </div>
+        <div class='total-box' id='total_${id}'>Total Salary: ₱0</div>
+    </div>`;
+}
 
-    <script>
-        const checkboxes = document.querySelectorAll('.day-check');
-        const dailySalaryInput = document.getElementById('dailySalary');
-        const totalSalaryBox = document.getElementById('totalSalaryBox');
+document.getElementById("employees").innerHTML =
+    Array.from({length: employeeCount}, (_, i) => createEmployee(i + 1)).join('');
 
-        function calculateSalary() {
-            let workedDays = 0;
-            checkboxes.forEach(cb => { if (cb.checked) workedDays++; });
+function calculateSalary(id) {
+    const dailySalary = Number(document.getElementById(`salary_${id}`).value) || 0;
+    const checks = document.querySelectorAll(`.day_${id}`);
 
-            const dailySalary = Number(dailySalaryInput.value) || 0;
-            const total = workedDays * dailySalary;
-            totalSalaryBox.textContent = `Total Salary: ₱${total}`;
-        }
+    let workedDays = 0;
+    checks.forEach(cb => { if (cb.checked) workedDays++; });
 
-        checkboxes.forEach(cb => cb.addEventListener('change', calculateSalary));
-        dailySalaryInput.addEventListener('input', calculateSalary);
-    // Save to localStorage
+    const total = workedDays * dailySalary;
+    document.getElementById(`total_${id}`).textContent = `Total Salary: ₱${total}`;
+    saveData();
+}
+
 function saveData() {
-    const data = {
-        name: document.getElementById('empName').value,
-        age: document.getElementById('empAge').value,
-        position: document.getElementById('empPosition').value,
-        dailySalary: dailySalaryInput.value,
-        worked: Array.from(checkboxes).map(cb => cb.checked)
-    };
-    localStorage.setItem('employeeData', JSON.stringify(data));
+    const all = {};
+
+    for (let i = 1; i <= employeeCount; i++) {
+        const checks = document.querySelectorAll(`.day_${i}`);
+        all[`emp_${i}`] = {
+            name: document.getElementById(`name_${i}`).value,
+            age: document.getElementById(`age_${i}`).value,
+            position: document.getElementById(`position_${i}`).value,
+            salary: document.getElementById(`salary_${i}`).value,
+            worked: Array.from(checks).map(cb => cb.checked)
+        };
+    }
+
+    localStorage.setItem("multiEmployeeData", JSON.stringify(all));
 }
 
-// Load saved data
 function loadData() {
-    const saved = localStorage.getItem('employeeData');
+    const saved = localStorage.getItem("multiEmployeeData");
     if (!saved) return;
-    const data = JSON.parse(saved);
 
-    document.getElementById('empName').value = data.name;
-    document.getElementById('empAge').value = data.age;
-    document.getElementById('empPosition').value = data.position;
-    dailySalaryInput.value = data.dailySalary;
+    const all = JSON.parse(saved);
 
-    data.worked.forEach((val, i) => {
-        checkboxes[i].checked = val;
-    });
+    for (let i = 1; i <= employeeCount; i++) {
+        const data = all[`emp_${i}`];
+        if (!data) continue;
 
-    calculateSalary();
+        document.getElementById(`name_${i}`).value = data.name;
+        document.getElementById(`age_${i}`).value = data.age;
+        document.getElementById(`position_${i}`).value = data.position;
+        document.getElementById(`salary_${i}`).value = data.salary;
+
+        const checks = document.querySelectorAll(`.day_${i}`);
+        data.worked.forEach((v, idx) => { checks[idx].checked = v; });
+        calculateSalary(i);
+    }
 }
 
-// Add event listeners
-checkboxes.forEach(cb => cb.addEventListener('change', () => { calculateSalary(); saveData(); }));
-dailySalaryInput.addEventListener('input', () => { calculateSalary(); saveData(); });
-document.getElementById('empName').addEventListener('input', saveData);
-document.getElementById('empAge').addEventListener('input', saveData);
-document.getElementById('empPosition').addEventListener('input', saveData);
+setTimeout(() => {
+    for (let i = 1; i <= employeeCount; i++) {
+        document.getElementById(`salary_${i}`).addEventListener('input', () => calculateSalary(i));
+        document.getElementById(`name_${i}`).addEventListener('input', saveData);
+        document.getElementById(`age_${i}`).addEventListener('input', saveData);
+        document.getElementById(`position_${i}`).addEventListener('input', saveData);
 
-// Load on start
-loadData();
+        document.querySelectorAll(`.day_${i}`).forEach(cb => {
+            cb.addEventListener('change', () => calculateSalary(i));
+        });
+    }
 
+    loadData();
+}, 200);
 </script>
+
 </body>
 </html>
+
